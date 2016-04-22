@@ -7,12 +7,25 @@
 
     <title>Aoloa</title>
 
+    <link rel="stylesheet" href="css/spa.css" />
     <link rel="stylesheet" href="css/aoloa.css" />
 </head>
 <body>
     <div id="splash"></div>
+    <aside id="alert" role="alert">
+        <header>
+            <strong>Unable to connect to Aoloa</strong>
+        </header>
+        <article>
+            <p>You cannot be signed in at this time. Please check your mobile network settings and try again.</p>
+        </article>
+        <footer>
+            <button>OK</button>
+        </footer>
+    </aside>
     <div id="root"></div>
 
+    <script type="text/javascript" src="js/spa.js"></script>
     <script type="text/javascript" src="js/aoloa.js"></script>
 </body>
 </html>
