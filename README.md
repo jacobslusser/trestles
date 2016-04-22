@@ -1,11 +1,11 @@
 # Aoloa
 Aoloa is an experiment in developing a single-page application (SPA) without using the popular JavaScript and CSS frameworks such as Angular, React, Knockout, Bootstrap, or even jQuery!
 
-The purpose is both as a learning exercise and a study in the pros and cons of using popular frameworks. In the past several years I've built many apps and websites using these libraries. Often they are a blessing, but sometimes they are a curse. I've been witness to an entire generation of young programmers who don't actually know how to program JavaScript. They only know how to use on the framework flavor of the month.
+The purpose is both as a learning exercise and a study in the pros and cons of using popular frameworks. In the past several years I've built many apps and websites using these libraries. Often they are a blessing, but sometimes they are a curse. I've been witness to an entire generation of young programmers who don't actually know how to program JavaScript. They only know how to use the framework flavor of the month.
 
 Ever wondered how a client-side router works? Or what jQuery actually does when it makes an AJAX call? Or how Bootstrap displays a modal dialog? All of those questions and more will hopefully be answered in the form of a well-documented sample application.
 
-To prove the idea, I'll be creating a SPA that mimics all the UI elements of a popular chat app such as Skype&trade;, capable of running on Cordova, but in pure JavaScript. Will the result be insanely fast JavaScript? or copious amounts of boilerplate code? Who knows? Only time will tell.
+To prove the idea, I'll be creating a SPA that mimics all the UI elements of a popular chat app such as Skype&trade;, capable of running on Cordova, but in pure JavaScript. Will the result be insanely fast JavaScript or copious amounts of boilerplate code? Who knows? Only time will tell.
 
 ## Project Status
 I believe in the "release early, release often" mantra. The current state of the project is 'conception'.
