@@ -5,7 +5,7 @@ The purpose is both as a learning exercise and a study in the pros and cons of u
 
 Ever wondered how a client-side router works? Or what jQuery actually does when it makes an AJAX call? Or how Bootstrap displays a modal dialog? All of those questions and more will hopefully be answered in the form of a well-documented sample application.
 
-To prove the idea, I'll be creating a SPA that mimics all the UI elements of a popular chat app such as Skype&trade;, capable of running on Cordova, but in pure JavaScript. Will the result be insanely fast JavaScript or copious amounts of boilerplate code? Who knows? Only time will tell.
+To prove the idea I'll be creating a SPA that mimics all the UI elements of a popular chat app such as Skype&trade;, capable of running on Cordova, Electron, mobile and/or desktop browsers, but in pure JavaScript. Will the result be insanely fast JavaScript or copious amounts of boilerplate code? Who knows? Only time will tell.
 
 ## Project Status
 I believe in the "release early, release often" mantra. The current state of the project is 'conception'.
