@@ -12,6 +12,10 @@ I believe in the "release early, release often" mantra. The current state of the
 
 I would encourage anyone interested to star the project and follow the progress as I chip away at it and report the lessons learned.
 
+## Screenshots
+
+![Splash Screen](docs/screenshots/splash.png "Splash Screen") ![Alert](docs/screenshots/alert.png)
+
 ## License
 
 The MIT License (MIT)
