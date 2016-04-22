@@ -1,7 +1,7 @@
 (function () {
     'use strict';
 
-    var aoloa = window.aoloa = {};
+    var trestles = window.trestles = {};
 
     
 

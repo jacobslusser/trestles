@@ -1,5 +1,5 @@
-# Aoloa
-Aoloa (pronounced [ā ō lō äh]; it's Hawaiian) is an experiment in developing a single-page application (SPA) without using the popular JavaScript and CSS frameworks such as Angular, React, Knockout, Bootstrap, or even jQuery!
+# Trestles
+Trestles is an experiment in developing a single-page application (SPA) without using the popular JavaScript and CSS frameworks such as Angular, React, Knockout, Bootstrap, or even jQuery!
 
 The purpose is both as a learning exercise and a study in the pros and cons of using popular frameworks. In the past several years I've built many apps and websites using these libraries. Often they are a blessing, but sometimes they are a curse. I've been witness to an entire generation of young programmers who don't actually know how to program JavaScript. They only know how to use the framework flavor of the month.
 
