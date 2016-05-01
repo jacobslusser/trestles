@@ -1,17 +1,10 @@
-html {
-    height: 100%;
+html, body {
     padding: 0;
     margin: 0;
 }
 
 body {
-    height: 100%;
-    padding: 0;
-    margin: 0;
-}
-
-body {
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-family: "Segoe UI", "Selawik";
     font-size: 14px;
     color: #797979;
 }
@@ -52,3 +45,50 @@ body {
     color: #fff;
     border: none;
 }
+
+#sign-in {
+    text-align: center;
+}
+
+#sign-in img {
+    padding: 20px;
+    max-width: 170px;
+}
+
+#sign-in h2 {
+    font-weight: normal;
+}
+
+/* External Overrides */
+
+.external {
+    font-family: "Segoe UI Light", "Selawik Light";
+    background: #00aff0;
+    color: #fff;
+}
+
+.external input {
+    border: none;
+    background-color: transparent;
+    border-bottom: 1px solid #80d7f8;
+    color: 80d7f8;
+    margin-bottom: 15px;
+}
+
+.external input::-webkit-input-placeholder {
+    color: #80d7f8;
+}
+
+.external button {
+    background-color: #0095cd;
+    color: #fff;
+    border: none;
+    padding: 10px;
+    width: 200px;
+}
+
+.external button[disabled] {
+    color: #00aff0;
+}
+
+
