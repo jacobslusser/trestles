@@ -98,15 +98,69 @@
 
     var components = spa.components = {};
     (function () {
-        var components = {};
+        var registry = {};
         var LOAD_STATE_NONE = 0;
         var LOAD_STATE_LOADING = 1;
         var LOAD_STATE_LOADED = 2;
 
+        function getTemplateId(name) {
+            return name + '-template';
+        }
+
+        function resolveTemplate(config, callback) {
+            if (config._templateState === LOAD_STATE_LOADED) {
+                // Template has already been loaded
+                callback(null, config);
+            }
+            else if (config._templateState === LOAD_STATE_LOADING) {
+                // We're waiting on an async request for the template
+                config._templateListeners.push(callback);
+            }
+            else {
+                // The template has never been loaded...
+                // Was it included inline or sideloaded?
+                var el = document.getElementById(getTemplateId(config.name));
+                if (el) {
+                    config._templateState = LOAD_STATE_LOADED;
+                    config._templateListeners.length = 0;
+                    callback(config);
+                    return;
+                }
+
+                // Start an AJAX request for the template
+                config._templateState = LOAD_STATE_LOADING;
+                config._templateListeners.push(callback);
+                xhr.send({
+                    url: config.templateUrl,
+                    dataType: 'html'
+                }, function (err, html) {
+
+                    // Add the template as a SCRIPT tag
+                    var script = document.createElement('script');
+                    script.setAttribute('id', getTemplateId(config.name));
+                    script.setAttribute('type', 'text/template');
+                    script.innerHTML = html;
+                    document.body.appendChild(script);
+
+                    // Update the state and process any waiting listeners
+                    config._templateState = LOAD_STATE_LOADED;
+
+                    var i = 0;
+                    var listener;
+                    while ((listener = config._templateListeners[i++])) {
+                        listener(null, config);
+                    }
+
+                    config._templateListeners.length = 0;
+                });
+            }
+        }
+
         components.register = function (name, config) {
-            components[name] = utils.extend(config, {
-                loadListeners: [],
-                loadState: LOAD_STATE_NONE
+            registry[name] = utils.extend(config, {
+                'name': name,
+                '_templateListeners': [],
+                '_templateState': LOAD_STATE_NONE
             });
         };
 
@@ -114,6 +168,11 @@
             // TODO Look for the constructor function and if not found, load the script
             // TODO Get the template by ID
 
+            // HACK for testing
+            var config = registry[name];
+            resolveTemplate(config, function (err, config) {
+                callback(null, config);
+            });
         };
     } ());
 
