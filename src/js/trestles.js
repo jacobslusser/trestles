@@ -5,7 +5,9 @@
 
     // Register components
     spa.components.register('signin', {
-        templateUrl: 'components/signin/signin.html'
+        templateUrl: 'components/signin/signin.html',
+        controllerUrl: 'components/signin/signin.js',
+        controller: 'SignIn'
     });
 
     // Register routes
@@ -20,11 +22,11 @@
     spa.router.start();
 
     // HACK for testing components
-    /*spa.components.load('signin', function (err, config) {
+    spa.components.load('signin', function (err, config) {
         console.log(config);
     });
     spa.components.load('signin', function (err, config) {
         console.log(config);
-    });*/
+    });
 
 } ());

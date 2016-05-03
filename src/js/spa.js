@@ -96,9 +96,35 @@
         };
     } ());
 
+/*
+    var controllers = spa.controllers = {};
+    (function () {
+        var factories = {};
+
+        controllers.register = function (name, config) {
+            factories[name] = utils.extend(config, {
+                
+                'name': name,
+                
+                '_templateListeners': [],
+                '_templateState': LOAD_STATE_NONE,
+                '_templateError': null,
+                '_controllerListeners': [],
+                '_controllerState': LOAD_STATE_NONE,
+                '_controllerError': null
+            });
+        };
+
+        controllers.create = function (name, args) {
+
+        }
+    } ());
+*/
+
     var components = spa.components = {};
     (function () {
         var registry = {};
+        var controllers = {};
         var LOAD_STATE_NONE = 0;
         var LOAD_STATE_LOADING = 1;
         var LOAD_STATE_LOADED = 2;
@@ -107,51 +133,74 @@
             return name + '-template';
         }
 
-        function resolveTemplate(config, callback) {
-            if (config._templateState === LOAD_STATE_LOADED) {
-                // Template has already been loaded
-                callback(null, config);
+        function resolveController(config, callback) {
+            if (config['_controllerState'] === LOAD_STATE_LOADED) {
+                // Script has already been loaded and executed.
+                // Just fire the callback.
+                callback(config['_controllerError'], config);
             }
-            else if (config._templateState === LOAD_STATE_LOADING) {
-                // We're waiting on an async request for the template
-                config._templateListeners.push(callback);
+            else if (config['_controllerState'] === LOAD_STATE_LOADING) {
+                // We're waiting on the an AJAX request for the controller script OR for the script to execute.
+                // Add the callback to the list of listeners to run when complete.
+                config['_controllerListeners'].push(callback);
+            }
+            else {
+                // The controller has never been loaded...
+                // Was it included inline or sideloaded?
+
+            }
+        }
+
+        function resolveTemplate(config, callback) {
+            if (config['_templateState'] === LOAD_STATE_LOADED) {
+                // Template has already been loaded.
+                // Just fire the callback.
+                callback(config['_templateError'], config);
+            }
+            else if (config['_templateState'] === LOAD_STATE_LOADING) {
+                // We're waiting on an AJAX request for the template.
+                // Add the callback to the list of listeners to run when complete.
+                config['_templateListeners'].push(callback);
             }
             else {
                 // The template has never been loaded...
                 // Was it included inline or sideloaded?
                 var el = document.getElementById(getTemplateId(config.name));
                 if (el) {
-                    config._templateState = LOAD_STATE_LOADED;
-                    config._templateListeners.length = 0;
-                    callback(config);
+                    config['_templateState'] = LOAD_STATE_LOADED;
+                    callback(null, config);
                     return;
                 }
 
                 // Start an AJAX request for the template
-                config._templateState = LOAD_STATE_LOADING;
-                config._templateListeners.push(callback);
+                config['_templateState'] = LOAD_STATE_LOADING;
+                config['_templateListeners'].push(callback);
                 xhr.send({
                     url: config.templateUrl,
                     dataType: 'html'
                 }, function (err, html) {
-
-                    // Add the template as a SCRIPT tag
-                    var script = document.createElement('script');
-                    script.setAttribute('id', getTemplateId(config.name));
-                    script.setAttribute('type', 'text/template');
-                    script.innerHTML = html;
-                    document.body.appendChild(script);
+                    if (err) {
+                        config['_templateError'] = err;
+                    }
+                    else {
+                        // Add the template as a SCRIPT tag
+                        var script = document.createElement('script');
+                        script.setAttribute('id', getTemplateId(config.name));
+                        script.setAttribute('type', 'text/template');
+                        script.innerHTML = html;
+                        document.body.appendChild(script);
+                    }
 
                     // Update the state and process any waiting listeners
-                    config._templateState = LOAD_STATE_LOADED;
+                    config['_templateState'] = LOAD_STATE_LOADED;
 
                     var i = 0;
                     var listener;
-                    while ((listener = config._templateListeners[i++])) {
-                        listener(null, config);
+                    while ((listener = config['_templateListeners'][i++])) {
+                        listener(err, config);
                     }
 
-                    config._templateListeners.length = 0;
+                    config['_templateListeners'].length = 0;
                 });
             }
         }
@@ -160,7 +209,11 @@
             registry[name] = utils.extend(config, {
                 'name': name,
                 '_templateListeners': [],
-                '_templateState': LOAD_STATE_NONE
+                '_templateState': LOAD_STATE_NONE,
+                '_templateError': null,
+                '_controllerListeners': [],
+                '_controllerState': LOAD_STATE_NONE,
+                '_controllerError': null
             });
         };
 
