@@ -1,12 +1,12 @@
 (function () {
 
-    function SignIn(params) {
+    function SignIn(el, params) {
         console.log('hello sign in controller');
     }
 
-    // Register
-    spa.components.defineController('SignIn', function (params) {
-        return new SignIn(params);
+    spa.components.register('signin', {
+        templateUrl: 'components/signin/signin.html',
+        controller: SignIn
     });
 
 } ());

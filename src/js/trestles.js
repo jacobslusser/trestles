@@ -3,13 +3,6 @@
 
     var trestles = window.trestles = {};
 
-    // Register components
-    spa.components.register('signin', {
-        templateUrl: 'components/signin/signin.html',
-        controllerUrl: 'components/signin/signin.js',
-        controller: 'SignIn'
-    });
-
     // Register routes
     spa.router.on(/^(#\/)?$/i, function () {
         console.log('root');
@@ -22,10 +15,7 @@
     spa.router.start();
 
     // HACK for testing components
-    spa.components.load('signin', function (err, config) {
-        console.log(config);
-    });
-    spa.components.load('signin', function (err, config) {
+    spa.components.show(document.body, { name: 'signin' }, function (err, config) {
         console.log(config);
     });
 
