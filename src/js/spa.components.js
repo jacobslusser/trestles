@@ -25,24 +25,22 @@
         };
     } ()));
 
-    function generateTemplateId(name) {
-        return name + '-template';
-    }
-
     function resolveTemplate(name, definition, callback) {
         if (definition.template !== undefined) {
             // Template is already resolved
-            callback(definition.template);
+            callback(null, definition.template);
         }
         else if (definition.templateId !== undefined) {
             // Template is contained in a DOM element
             var el = document.getElementById(definition.templateId);
-            callback(el.innerHTML);
+            callback(null, el.innerHTML);
         }
         else {
-            // Load the template from the server
+            // Load the template from the server. We don't have any dependencies on promises so we
+            // use a lightweight synchronization primitive--the presence of a '_listeners' property--
+            // as an indicator of a request in flight and a place to queue any continuations.
             if (definition['_listeners'] !== undefined) {
-                // The request is already in flight
+                // A request is already in flight
                 definition['_listeners'].push(callback);
             }
             else {
@@ -53,17 +51,18 @@
                     dataType: 'html'
                 }, function (err, html) {
                     if (!err) {
+                        // Resolve the template
                         definition.template = html;
                     }
 
-                    var i = 0;
-                    var listener;
                     // Notify listeners
-                    while ((listener = definition['_listeners'][i++])) {
+                    var listeners = definition['_listeners'];
+                    delete definition['_listeners'];
+
+                    var i = 0, listener;
+                    while ((listener = listeners[i++])) {
                         listener(err, html);
                     }
-
-                    delete definition['_listeners'];
                 });
             }
         }
@@ -73,29 +72,52 @@
         definitions[name] = definition;
     };
 
-    components.show = function (el, config, callback) {
+    components.remove = function (el, empty) {
         var component = data.get(el);
-        var definition = definitions[config.name];
-        if (component && component.templateId === definition.templateId && typeof component.controller.update === 'function') {
-            // Current controller supports 'update'
-            component.controller.update(config.params);
-            callback(null, component);
-            return;
-        }
-
         if (component && typeof component.controller.dispose === 'function') {
-            // Current controller supports 'dispose'
+            // Call 'dispose' on the controller being removed
             component.controller.dispose();
         }
 
         data.set(el, null);
+        if (!!empty) {
+            el.innerHTML = '';
+        }
+    };
 
+    components.show = function (el, config, callback) {
+        var definition = definitions[config.name];
         resolveTemplate(config.name, definition, function (err, template) {
-            el.innerHTML = template;
+            if (err) {
+                callback(err);
+                return;
+            }
+
             try {
+                var component = data.get(el);
+                if (component && component.name === config.name && typeof component.controller.update === 'function') {
+                    // Call 'update' on the current controller instead of replacing the component
+                    component.controller.update(config.params);
+                    callback(null, component.controller);
+                    return;
+                }
+
+                // Dispose of the current component, but don't
+                // remove the existing HTML to reduce flickering.
+                components.remove(el, false);
+
+                // Inject the new template
+                el.innerHTML = template;
+
+                // Instantiate the new controller
                 var controller = new definition.controller(el, config.params);
-                data.set(el, controller);
-                callback(null, componment);
+                component = {
+                    name: config.name,
+                    controller: controller
+                };
+
+                data.set(el, component);
+                callback(null, controller);
             }
             catch (err) {
                 callback(err);

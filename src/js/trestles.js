@@ -15,8 +15,17 @@
     spa.router.start();
 
     // HACK for testing components
-    spa.components.show(document.body, { name: 'signin' }, function (err, config) {
-        console.log(config);
+    spa.components.show(document.getElementById('sign-in'), { name: 'signin' }, function (err, controller) {
+        if(err) {
+            throw err;
+        }
+        //console.log(controller);
+    });
+    spa.components.show(document.getElementById('sign-in'), { name: 'signin' }, function (err, controller) {
+        //console.log(controller);
+        if(err) {
+            throw err;
+        }
     });
 
 } ());
