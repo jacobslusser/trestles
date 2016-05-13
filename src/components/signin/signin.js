@@ -2,14 +2,24 @@
 
     function SignIn(el, params) {
         var self = this;
-        console.log('hello sign in controller');
-        
-        self.update = function(params) {
-            console.log('update');
+        self.update = update;
+        self.dispose = dispose;
+
+        var form = el.querySelectorAll('form')[0];
+        form.addEventListener('submit', submit);
+        update(params);
+
+        function update(params) {
         };
-        
-        self.dispose = function() {
-            console.log('dispose');
+
+        function dispose() {
+            form.removeEventListener('submit', submit);
+        };
+
+        function submit(event) {
+            event.preventDefault();
+            
+            console.log('submit');
         };
     }
 

@@ -96,29 +96,4 @@
         };
     } ());
 
-    /*
-        var controllers = spa.controllers = {};
-        (function () {
-            var factories = {};
-    
-            controllers.register = function (name, config) {
-                factories[name] = utils.extend(config, {
-                    
-                    'name': name,
-                    
-                    '_templateListeners': [],
-                    '_templateState': LOAD_STATE_NONE,
-                    '_templateError': null,
-                    '_controllerListeners': [],
-                    '_controllerState': LOAD_STATE_NONE,
-                    '_controllerError': null
-                });
-            };
-    
-            controllers.create = function (name, args) {
-    
-            }
-        } ());
-    */
-
 } ());

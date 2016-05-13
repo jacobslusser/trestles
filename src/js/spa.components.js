@@ -1,4 +1,4 @@
-(function () {
+(function (spa) {
     'use strict';
 
     var components = spa.components = {};
