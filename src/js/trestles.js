@@ -9,6 +9,9 @@
     spa.router.on(/^#\/signin\/?$/i, function () {
         console.log('sign-in');
     });
+    
+    // Start the app by making a network request. That will tell us if we
+    // have network connectivity and/or whether our user is authenticated.
 
     spa.router.start();
 

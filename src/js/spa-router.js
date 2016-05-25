@@ -2,7 +2,6 @@
     'use strict';
 
     var router = spa.router = {};
-
     var routes = [];
 
     function hashChange() {
@@ -16,7 +15,7 @@
             }
         }
     }
-    
+
     router.before = function () {
         
     };
