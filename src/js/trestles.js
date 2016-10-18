@@ -16,11 +16,17 @@
     spa.router.start();
 
     // HACK for testing components
-    spa.components.show(document.getElementById('page'), { name: 'signin' }, function (err, controller) {
+    /*spa.components.show(document.getElementById('page'), { name: 'signin' }, function (err, controller) {
         if(err) {
             throw err;
         }
         //console.log(controller);
-    });
+    });*/
+
+    var alert = new widgets.Alert({
+        header: 'Unable to connect to Trestles',
+        content: 'You cannot be signed in at this time. Please check your mobile network settings and try again.'
+    })
+    alert.show();
 
 } (window.trestles = window.trestles || {}));

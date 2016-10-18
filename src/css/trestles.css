@@ -4,7 +4,8 @@ html, body {
 }
 
 body {
-    font-family: "Segoe UI", "Selawik";
+    /* font-family: "Segoe UI", "Selawik"; */
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: 14px;
     color: #797979;
 }
@@ -17,28 +18,29 @@ body {
     z-index: 888;
 }
 
-#alert {
+#alert, .alert {
     position: fixed;
     top: 25px;
     left: 25px;
     right: 25px;
     z-index: 999;
     background-color: #fff;
+    color: #797979;
 }
 
-#alert header {
+#alert header, .alert .header {
     padding-top: 25px;
     padding-left: 25px;
     padding-right: 25px;
 }
 
-#alert article {
+#alert article, .alert .content {
     padding-left: 25px;
     padding-right: 25px;
     padding-bottom: 15px;
 }
 
-#alert footer button {
+#alert footer button, .alert .footer button {
     width: 100%;
     padding: 15px;
     background-color: #0095cd;
@@ -62,7 +64,8 @@ body {
 /* External Overrides */
 
 .external {
-    font-family: "Segoe UI Light", "Selawik Light";
+    /* font-family: "Segoe UI Light", "Selawik Light"; */
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     background: #00aff0;
     color: #fff;
 }
