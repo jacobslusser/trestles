@@ -23,10 +23,25 @@
         //console.log(controller);
     });*/
 
-    var alert = new widgets.Alert({
-        header: 'Unable to connect to Trestles',
-        content: 'You cannot be signed in at this time. Please check your mobile network settings and try again.'
-    })
-    alert.show();
+    // var alert = new widgets.Alert({
+    //     header: 'Unable to connect to Trestles',
+    //     content: 'You cannot be signed in at this time. Please check your mobile network settings and try again.'
+    // })
+    // alert.show();
+
+    var stage = new widgets.Stage({
+        target: document.getElementById('main-stage')
+    });
+
+    var page = document.getElementById('test-page');
+    stage.transition({
+        target: page
+    });
+    page.addEventListener('click', function () {
+        var page2 = document.getElementById('test-page2');
+        stage.transition({
+            target: page2
+        });
+    });
 
 } (window.trestles = window.trestles || {}));
