@@ -8,69 +8,90 @@
     <title>Trestles</title>
     <link rel="icon" href="data:;base64,iVBORw0KGgo=" />
 
-    <link rel="stylesheet" href="css/spa.css" />
-    <!--<link rel="stylesheet" href="css/selawik.css" />-->
-    <link rel="stylesheet" href="css/trestles.progress.css" />
-    <link rel="stylesheet" href="css/trestles.css" />
+    <style type="text/css">
+        html {
+            box-sizing: border-box;
+        }
 
+        *,
+        *:before,
+        *:after {
+            box-sizing: inherit;
+        }
+
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #fff;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            color: #333;
+        }
+
+        #splash {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background-color: #fff;
+            z-index: 2048;
+        }
+
+        #splash span {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+    </style>
 </head>
-<body class="external">
-    <div id="progress-bar"></div>
-    <div id="page"></div>
-    <div class="stage" id="main-stage"></div>
-    <!--<div id="splash"></div>-->
-    <!--<aside id="alert" role="alert">
-        <header>
-            <strong>Unable to connect to Trestles</strong>
-        </header>
-        <article>
-            <p>You cannot be signed in at this time. Please check your mobile network settings and try again.</p>
-        </article>
-        <footer>
-            <button>OK</button>
-        </footer>
-    </aside>
-    <div id="root"></div>-->
-
-    <!-- Test stuff -->
-    <div style="display: none">
-        <div id="test-page" style="background-color: red">
-            Actor <br />
-            lorem ipsum
-        </div>
-        <div id="test-page2" style="background-color: green">
-            Actor2 <br />
-            lorem ipsum
-        </div>
+<body>
+    <div id="splash">
+        <span>Loading...</span>
     </div>
 
-    <script id="alert-template" type="text/template">
-        <div class="alert">
-            <div class="header"></div>
-            <div class="content"></div>
-            <div class="footer">
-                <button type="button">OK</button>
-            </div>
-        </div>
+    <div class="stage" id="main-stage"></div>
+
+    <script type="text/javascript" id="boot">
+        (function () {
+            'use strict';
+
+            function addCss(href) {
+                var link = document.createElement('link');
+                link.rel = 'stylesheet';
+                link.type = 'text/css';
+                link.href = href;
+                document.head.appendChild(link);
+            }
+
+            function addJs(src) {
+                var script = document.createElement('script');
+                script.type = 'text/javascript';
+                script.src = src;
+                document.body.appendChild(script);
+            }
+
+            function boot() {
+                addCss('css/base.css');
+                addJs('js/appSettings.js');
+                addJs('js/app.js');
+
+                var el = document.getElementById('boot');
+                el.parentNode.removeChild(el);
+            }
+
+            if (document.readyState === 'complete'){
+                boot();
+            } else {
+                window.addEventListener('load', boot);
+            }
+        } ());
     </script>
-
-    <script type="text/javascript" src="js/widgets.js"></script>
-
-    <!-- Core libraries -->
-    <script type="text/javascript" src="js/spa.js"></script>
-    <script type="text/javascript" src="js/spa-xhr.js"></script>
-    <script type="text/javascript" src="js/spa-components.js"></script>
-    <script type="text/javascript" src="js/spa-router.js"></script>
-
-    <!-- Components -->
-    <script type="text/javascript" src="components/signin/signin.js"></script>
-
-    <!-- Stubs... so that we don't need a backend; remove in production -->
-    <script type="text/javascript" src="js/trestles-stubs.js"></script>
-
-    <!-- App -->
-    <script type="text/javascript" src="js/trestles-progress.js"></script>
-    <script type="text/javascript" src="js/trestles.js"></script>
-
 </body>
 </html>
