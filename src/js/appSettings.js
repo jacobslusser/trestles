@@ -3,11 +3,11 @@
  * NOTE: We take a small hit for loading this file separately but it makes maintenance much easier.
  */
 
-(function (appSettings) {
+(function () {
     'use strict';
 
-    appSettings.version = '1.0';
-    appSettings.isDebug = true;
-    appSettings.isPackaged = false;
+    this.version = '1.0';
+    this.isDebug = true;
+    this.isPackaged = false;
 
-}(window.appSettings = window.appSettings || {}));
+}.call(window.appSettings = window.appSettings || {}));

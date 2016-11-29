@@ -7,6 +7,7 @@
 
     <title>Trestles</title>
     <link rel="icon" href="data:;base64,iVBORw0KGgo=" />
+    <!--[if lt IE 9]> <link rel="stylesheet" href="css/incompatible.css" /> <![endif]-->
 
     <style type="text/css">
         html {
@@ -33,6 +34,10 @@
             color: #333;
         }
 
+        #incompatible {
+            display: none;
+        }
+
         #splash {
             position: absolute;
             top: 0;
@@ -52,46 +57,55 @@
     </style>
 </head>
 <body>
+    <div id="incompatible">
+        <p>Your browser does not meet the minimum requirements for this site.</p>
+        <p>Please use Chrome, Firefox, or Internet Explorer 9 or greater.</p>
+    </div>
     <div id="splash">
         <span>Loading...</span>
     </div>
 
     <div class="stage" id="main-stage"></div>
 
-    <script type="text/javascript" id="boot">
+    <noscript id="styles">
+        <link type="text/css" rel="stylesheet" href="css/base.css" />
+    </noscript>
+
+    <script type="text/javascript" id="scripts">
         (function () {
             'use strict';
 
-            function addCss(href) {
-                var link = document.createElement('link');
-                link.rel = 'stylesheet';
-                link.type = 'text/css';
-                link.href = href;
-                document.head.appendChild(link);
-            }
-
-            function addJs(src) {
+            function appendScript(src) {
                 var script = document.createElement('script');
                 script.type = 'text/javascript';
                 script.src = src;
                 script.async = false;
-                document.body.appendChild(script);
+                document.head.appendChild(script);
             }
 
-            function boot() {
-                addCss('css/base.css');
-                addJs('js/appSettings.js');
-                addJs('js/utils.js');
-                addJs('js/app.js');
+            function init() {
+                var el = document.getElementById('styles');
+                document.head.insertAdjacentHTML('beforeend', el.textContent);
+                el.parentElement.removeChild(el);
 
-                var el = document.getElementById('boot');
-                el.parentNode.removeChild(el);
+                var isCordova = /^https?:/i.test(document.URL) === false || location.port === '12344';
+                if (isCordova) {
+                    appendScript('cordova.js');
+                }
+
+                appendScript('js/appSettings.js');
+                appendScript('js/utils.js');
+                appendScript('js/app.js');
+
+                el = document.getElementById('scripts');
+                el.parentElement.removeChild(el);
             }
 
-            if (document.readyState === 'complete'){
-                boot();
-            } else {
-                window.addEventListener('load', boot);
+            // Wait for the splash screen to render and then load the styles and scripts
+            if (document.readyState === 'complete') {
+                init();
+            } else if (window.addEventListener) {
+                window.addEventListener('load', init);
             }
         } ());
     </script>
