@@ -1,7 +1,55 @@
-(function (app) {
+(function () {
     'use strict';
 
-    var utils = (app.utils = app.utils || {});
+    var utils = this;
+    var xhrDefaults = {
+        method: 'GET'
+    };
+
+    /**
+     * Trigger a custom event.
+     * @param {EventTarget} target - The object dispatching the event.
+     * @param {string} type - The name of the event.
+     * @param {Object} detail - Data to associate with the event. Optional.
+     */
+    function triggerCustomEvent(target, type, detail) {
+        var event;
+        if (window.CustomEvent) {
+            event = new CustomEvent(type, { detail: detail });
+        } else {
+            event = document.createEvent('CustomEvent');
+            event.initCustomEvent(type, true, true, detail);
+        }
+
+        target.dispatchEvent(event);
+    }
+
+    /**
+     * Sends a XHR (AJAX) request.
+     * @param {Object} settings - The request settings.
+     * @param {Function} callback - The callback to execute when the request is complete.
+     */
+    function xhr(settings, callback) {
+        var request = new XMLHttpRequest();
+
+        request.open(settings.method ? settings.method.toUpperCase() : xhrDefaults.method, settings.url, true);
+        request.onload = function () {
+            if (request.status >= 200 && request.status < 400) {
+                callback(null, request);
+            } else {
+                // We reached our target server, but it returned an error
+                callback(new Error('poop'), request);
+            }
+        };
+
+        request.onerror = function () {
+            // There was a connection error of some sort
+            callback(new Error('poop'), request);
+        };
+
+        request.send();
+    }
+
 
     function getStorage(storage) {
         try {
@@ -42,4 +90,8 @@
         }
     };
 
-} (window.app = window.app || {}));
+    // Exports
+    utils.triggerCustomEvent = triggerCustomEvent;
+    utils.xhr = xhr;
+
+}.call(window.utils = window.utils || {}));
