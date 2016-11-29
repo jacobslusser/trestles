@@ -74,12 +74,14 @@
                 var script = document.createElement('script');
                 script.type = 'text/javascript';
                 script.src = src;
+                script.async = false;
                 document.body.appendChild(script);
             }
 
             function boot() {
                 addCss('css/base.css');
                 addJs('js/appSettings.js');
+                addJs('js/utils.js');
                 addJs('js/app.js');
 
                 var el = document.getElementById('boot');

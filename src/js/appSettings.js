@@ -6,7 +6,8 @@
 (function (appSettings) {
     'use strict';
 
-    appSettings.debug = true;
     appSettings.version = '1.0';
+    appSettings.isDebug = true;
+    appSettings.isPackaged = false;
 
 }(window.appSettings = window.appSettings || {}));
