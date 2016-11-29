@@ -7,7 +7,6 @@
 
     <title>Trestles</title>
     <link rel="icon" href="data:;base64,iVBORw0KGgo=" />
-    <!--[if lt IE 9]> <link rel="stylesheet" href="css/incompatible.css" /> <![endif]-->
 
     <style type="text/css">
         html {
@@ -34,10 +33,6 @@
             color: #333;
         }
 
-        #incompatible {
-            display: none;
-        }
-
         #splash {
             position: absolute;
             top: 0;
@@ -57,10 +52,6 @@
     </style>
 </head>
 <body>
-    <div id="incompatible">
-        <p>Your browser does not meet the minimum requirements for this site.</p>
-        <p>Please use Chrome, Firefox, or Internet Explorer 9 or greater.</p>
-    </div>
     <div id="splash">
         <span>Loading...</span>
     </div>
@@ -101,11 +92,17 @@
                 el.parentElement.removeChild(el);
             }
 
-            // Wait for the splash screen to render and then load the styles and scripts
-            if (document.readyState === 'complete') {
-                init();
-            } else if (window.addEventListener) {
-                window.addEventListener('load', init);
+            // Weed-out older browsers and wait for the splash screen to render before loading styles and scripts
+            if (!window.addEventListener) {
+                var incompatible = 'Your browser does not meet the minimum requirements for this site.\n'
+                                 + 'Please use Chrome, Firefox, or Internet Explorer 9 or greater.';
+                alert(incompatible);
+            } else {
+                if (document.readyState === 'complete') {
+                    init();
+                } else {
+                    window.addEventListener('load', init);
+                }
             }
         } ());
     </script>
