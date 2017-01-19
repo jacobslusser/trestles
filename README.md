@@ -20,7 +20,7 @@ I would encourage anyone interested to star the project and follow the progress 
 
 The MIT License (MIT)
 
-Copyright (c) 2016, Jacob Slusser, https://github.com/jacobslusser
+Copyright (c) 2017, Jacob Slusser, https://github.com/jacobslusser
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
