@@ -2,11 +2,10 @@
  * Main application module.
  */
 
-(function(app) {
+(function() {
     'use strict';
 
     var app = this;
-    var widgetState = {};
     var widgetsScriptState = {};
     var widgetsTemplateState = {};
 
@@ -18,9 +17,11 @@
 
     // var mainStage;
 
+
+
     function updateWidgetsScriptState(group) {
         widgetsScriptState[group] = 'complete';
-        utils.triggerCustomEvent(document, 'widgetstatechange', {
+        utils.dispatchCustomEvent(document, 'widgetstatechange', {
             group: group,
             resource: 'script',
             state: 'complete'
@@ -31,55 +32,61 @@
         if (widgetsScriptState[group] === 'complete' && widgetsTemplateState[group] === 'complete') {
             // The template and script are already loaded
             callback();
-        } else {
-            // Execute the callback when the script and template are loaded
-            document.addEventListener('widgetstatechange', function listener(e) {
-                if (widgetsScriptState[group] === 'complete' && widgetsTemplateState[group] === 'complete') {
-                    document.removeEventListener('widgetstatechange', listener);
-                    callback();
-                }
+            return;
+        }
+
+        // Execute the callback when the script and template are loaded
+        document.addEventListener('widgetstatechange', function listener(e) {
+            if (widgetsScriptState[group] === 'complete' && widgetsTemplateState[group] === 'complete') {
+                document.removeEventListener('widgetstatechange', listener);
+                callback();
+            }
+        });
+
+        // Request the script?
+        if (!widgetsScriptState[group]) {
+            widgetsScriptState[group] = 'loading';
+            utils.dispatchCustomEvent(document, 'widgetstatechange', {
+                group: group,
+                resource: 'script',
+                state: 'loading'
             });
 
-            // If the requests aren't already in flight, start them now
-            if (!widgetsScriptState[group]) {
-                widgetsScriptState[group] = 'loading';
-                utils.triggerCustomEvent(document, 'widgetstatechange', {
-                    group: group,
-                    resource: 'script',
-                    state: 'loading'
-                });
+            var script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.src = 'widgets/' + group + '.js';
+            document.head.appendChild(script);
+            // See updateWidgetsScriptState
+        }
 
-                var script = document.createElement('script');
-                script.type = 'text/javascript';
-                script.src = 'widgets/' + group + '.js';
-                document.head.appendChild(script);
-                // See updateWidgetsScriptState
-            }
+        // Request the template?
+        if (!widgetsTemplateState[group]) {
+            widgetsTemplateState[group] = 'loading';
+            utils.dispatchCustomEvent(document, 'widgetstatechange', {
+                group: group,
+                resource: 'template',
+                state: 'loading'
+            });
 
-            if (!widgetsTemplateState[group]) {
-                widgetsTemplateState[group] = 'loading';
-                utils.triggerCustomEvent(document, 'widgetstatechange', {
+            utils.xhr({
+                url: 'widgets/' + group + '.html'
+            }, function(err, xhr) {
+                // TODO handle error?
+                document.body.insertAdjacentHTML('beforeend', xhr.responseText);
+                widgetsTemplateState[group] = 'complete';
+                utils.dispatchCustomEvent(document, 'widgetstatechange', {
                     group: group,
                     resource: 'template',
-                    state: 'loading'
+                    state: 'complete'
                 });
-
-                utils.xhr({
-                    url: 'widgets/' + group + '.html'
-                }, function(err, xhr) {
-                    // TODO handle error
-                    document.body.insertAdjacentHTML('beforeend', xhr.responseText);
-                    widgetsTemplateState[group] = 'complete';
-                    utils.triggerCustomEvent(document, 'widgetstatechange', {
-                        group: group,
-                        resource: 'template',
-                        state: 'complete'
-                    });
-                });
-            }
+            });
         }
     }
 
+    // Exports
+    app.updateWidgetsScriptState = updateWidgetsScriptState;
+
+    // Start the app
     requireWidgets('external', function(err) {
 
         // Display the login widget
@@ -87,13 +94,10 @@
         var host = document.getElementById('main-stage');
         host.innerHTML = '<div>' + template.textContent + '</div>';
 
-        var login = widgets.createLogin(host.firstElementChild);
+        var login = app.createLogin(host.firstElementChild);
 
         var splash = document.getElementById('splash');
         utils.setStyles(splash, { opacity: '0' });
     });
-
-    // Exports
-    app.updateWidgetsScriptState = updateWidgetsScriptState;
 
 }.call(window.app = window.app || {}));

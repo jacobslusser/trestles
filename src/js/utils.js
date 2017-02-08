@@ -12,7 +12,7 @@
      * @param {string} type - The name of the event.
      * @param {Object} detail - Data to associate with the event. Optional.
      */
-    function triggerCustomEvent(target, type, detail) {
+    function dispatchCustomEvent(target, type, detail) {
         var event;
         if (window.CustomEvent) {
             event = new CustomEvent(type, { detail: detail });
@@ -91,7 +91,7 @@
     };
 
     // Exports
-    utils.triggerCustomEvent = triggerCustomEvent;
+    utils.dispatchCustomEvent = dispatchCustomEvent;
     utils.xhr = xhr;
 
 }.call(window.utils = window.utils || {}));
