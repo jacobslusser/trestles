@@ -1,0 +1,25 @@
+{
+  "name": "trestles",
+  "version": "0.0.1",
+  "description": "Trestles is an experiment in developing a single-page application (SPA) without using the popular JavaScript and CSS frameworks such as Angular, React, Knockout, Bootstrap, or even jQuery!",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jacobslusser/Trestles.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jacobslusser/Trestles/issues"
+  },
+  "homepage": "https://github.com/jacobslusser/Trestles#readme",
+  "devDependencies": {
+    "promises-aplus-tests": "^2.1.2"
+  }
+}
