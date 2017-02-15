@@ -1,8 +1,12 @@
 (function () {
     'use strict';
 
+    // Our cross-browser compatible version of process.nextTick / setImmediate.
+    // https://gist.github.com/bluejava/9b9542d1da2a164d0456
+    // https://github.com/knockout/knockout/blob/v3.4.1/src/tasks.js
+    // https://github.com/YuzuJS/setImmediate/blob/master/setImmediate.js
     nappy.nextTick = (function () {
-        // TODO improve performance
+        // TODO finish implementing better performing versions
         if (setImmediate) {
             return setImmediate;
         } else {
@@ -12,98 +16,78 @@
         }
     }());
 
+    // Our Promises/A+ compliant implementation.
+    // https://github.com/abdulapopoola/Adehun/blob/master/adehun.js
+    // https://github.com/bluejava/zousan/blob/master/src/zousan.js
+    // https://www.promisejs.org/implementing/
+    // https://github.com/then/promise/blob/master/src/core.js
     var STATE_PENDING = undefined;
     var STATE_FULFILLED = 1;
     var STATE_REJECTED = 2;
 
-    function Handler(onFulfilled, onRejected, promise) {
-        this.onFulfilled = (typeof onFulfilled === 'function' ? onFulfilled : null);
-        this.onRejected = (typeof onRejected === 'function' ? onRejected : null);
-        this.promise = promise;
+    function isFunction(val) {
+        return (val && typeof val === 'function');
     }
 
-    function Promise(resolver) {
+    function isObject(val) {
+        return (val && typeof val === 'object');
+    }
+
+    function isPromise(val) {
+        return (val && val instanceof Promise);
+    }
+
+    function promiseResolutionProc(promise, x) {
+        if (promise === x) {
+            promise.transition(STATE_REJECTED, new TypeError('A promise cannot be resolved with itself.'));
+        } else if (isPromise(x)) {
+            if (x.state === STATE_PENDING) {
+                x.then(function (y) {
+                    promiseResolutionProc(promise, y);
+                }, function (e) {
+                    promise.transition(STATE_REJECTED, e);
+                });
+            } else {
+                promise.transition(x.state, x.value);
+            }
+        } else if (isObject(x) || isFunction(x)) {
+            var done = false, then;
+            try {
+                then = x.then;
+                if (isFunction(then)) {
+                    then.call(x, function (y) {
+                        if (done) return;
+                        done = true;
+                        promiseResolutionProc(promise, y);
+                    }, function (r) {
+                        if (done) return;
+                        done = true;
+                        promise.transition(STATE_REJECTED, r);
+                    });
+                } else {
+                    promise.transition(STATE_FULFILLED, x);
+                    done = true;
+                }
+            } catch (e) {
+                if (done) return;
+                done = true;
+                promise.transition(STATE_REJECTED, e);
+            }
+        } else {
+            promise.transition(STATE_FULFILLED, x);
+        }
+    }
+
+    function Promise(fn) {
         var self = this;
 
-        this.then = function (onFulfilled, onRejected) {
-            var promise = new Promise(function () { });
+        this.state = STATE_PENDING;
+        this.value = null;
+        this.queue = [];
 
-            // Push handler onto queue
-            var handler = new Handler(onFulfilled, onRejected, promise);
-            if (self.handlers) {
-                self.handlers.push(handler);
-            } else {
-                self.handlers = [handler];
-            }
-
-            if (self.state !== STATE_PENDING) {
-                // We're already complete (fulfilled or rejected).
-                // Process any registered handlers (asynchronously)
-                processHandlers();
-            }
-
-            return promise;
-        };
-
-        function resolve(value) {
-            // Ignore calls when already fulfilled or rejected
-            if (self.state !== STATE_PENDING) {
-                return;
-            }
-
-            // The 'promise resolution procedure'.
-            // https://promisesaplus.com/#point-45
-            if (self === value) {
-                return self.reject(new TypeError('A promise cannot be resolved with itself.'));
-            } else if (value instanceof Promise) {
-                return value.then(resolve, reject);
-            } else if (typeof value === 'object' || typeof value === 'function') {
-                var then;
-                try {
-                    then = value.then;
-                } catch (e) {
-                    return reject(e);
-                }
-                if (typeof then === 'function') {
-                    var done;
-                    try {
-                        then.call(value, function (y) {
-                            if (done) return;
-                            done = true;
-                            return self.resolve(y);
-                        }, function (r) {
-                            if (done) return;
-                            done = true;
-                            return self.reject(r);
-                        });
-                    } catch (e) {
-                        if (done) return;
-                        return self.reject(e);
-                    }
-                }
-            }
-
-            // Transition to fulfilled state
-            self.state = STATE_FULFILLED;
-            self.val = value;
-
-            // Process any registered handlers (asynchronously)
-            processHandlers();
-        }
-
-        function reject(reason) {
-            // Ignore calls when already fulfilled or rejected
-            if (self.state !== STATE_PENDING) {
-                return;
-            }
-
-            // Transition to rejected state
-            self.state = STATE_REJECTED;
-            self.val = reason;
-
-            // Process any registered handlers (asynchronously)
-            processHandlers();
-        }
+        // Captured 'then' args
+        this.onFulfilled = null;
+        this.onRejected = null;
 
         function onFulfilledFallback(value) {
             return value;
@@ -113,42 +97,73 @@
             throw reason;
         }
 
-        function processHandlers() {
-            if (self.handlers && self.handlers.length) {
-                var handlers = self.handlers;
-                delete self.handlers;
+        this.resolve = function (value) {
+            self.transition(STATE_FULFILLED, value);
+        };
 
-                nappy.nextTick(function () {
-                    var handler, callback, result;
-                    while (handler = handlers.shift()) {
+        this.reject = function (reason) {
+            self.transition(STATE_REJECTED, reason);
+        };
 
-                        // The 'then' Method
-                        // https://promisesaplus.com/#point-21
-                        if (self.state === STATE_FULFILLED) {
-                            callback = handler.onFulfilled || onFulfilledFallback.bind(self);
-                        } else {
-                            callback = handler.onRejected || onRejectedFallback.bind(self);
-                        }
+        this.then = function (onFulfilled, onRejected) {
+            var promise = new Promise();
 
-                        try {
-                            result = callback(self.value);
-                        } catch (e) {
-                            reject.call(handler.promise, e);
-                            continue;
-                        }
-
-                        resolve.call(handler.promise, result);
-                    }
-                });
+            // Store callbacks to be processed later
+            if (isFunction(onFulfilled)) {
+                promise.onFulfilled = onFulfilled;
             }
+            if (isFunction(onRejected)) {
+                promise.onRejected = onRejected;
+            }
+
+            // Queue the callback and process
+            self.queue.push(promise);
+            processQueue();
+
+            return promise;
+        };
+
+        this.transition = function (state, value) {
+            if (self.state === state || self.state !== STATE_PENDING) {
+                return;
+            }
+
+            self.state = state;
+            self.value = value;
+            processQueue();
+        };
+
+        function processQueue() {
+            if (self.state === STATE_PENDING) {
+                return;
+            }
+
+            nappy.nextTick(function () {
+                var promise, handler, value;
+                while (promise = self.queue.shift()) {
+                    if (self.state === STATE_FULFILLED) {
+                        handler = promise.onFulfilled || onFulfilledFallback;
+                    } else {
+                        handler = promise.onRejected || onRejectedFallback;
+                    }
+
+                    try {
+                        value = handler(self.value);
+                    } catch (e) {
+                        promise.transition(STATE_REJECTED, e);
+                    }
+
+                    promiseResolutionProc(promise, value);
+                }
+            });
         }
 
         // Run the user-supplied resolver function to give them the resolve
         // and reject functions they need to complete the promise.
-        try {
-            resolver(resolve, reject);
-        } catch (err) {
-            reject(err);
+        if (fn) {
+            fn(function (value) {
+                promiseResolutionProc(self, value);
+            }, self.reject);
         }
     }
 

@@ -35,6 +35,8 @@ var adapter = {
     deferred: deferred
 }
 
-promisesAplusTests(adapter, function (err) {
-    console.error(err);
-});
+module.exports = adapter;
+
+// promisesAplusTests(adapter, function (err) {
+//     console.error(err);
+// });
