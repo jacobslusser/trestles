@@ -98,7 +98,7 @@
         }
 
         this.resolve = function (value) {
-            self.transition(STATE_FULFILLED, value);
+            promiseResolutionProc(self, value);
         };
 
         this.reject = function (reason) {
@@ -161,9 +161,7 @@
         // Run the user-supplied resolver function to give them the resolve
         // and reject functions they need to complete the promise.
         if (fn) {
-            fn(function (value) {
-                promiseResolutionProc(self, value);
-            }, self.reject);
+            fn(self.resolve, self.reject);
         }
     }
 
