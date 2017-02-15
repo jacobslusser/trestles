@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Nappy Sandbox</title>
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=" />
+</head>
+<body>
+    <script src="js/nappy.js"></script>
+    <script src="js/nappy-promises.js"></script>
+    <script>
+        nappy.nextTick(function () {
+            console.log('hello 1');
+            
+            /*
+            nappy.nextTick((function () {
+                throw new Error("Oops!");
+            }));
+            */
+            nappy.nextTick((function () {
+                console.log('hello 3');
+            }));
+
+            
+        });
+
+        nappy.nextTick(function () {
+            console.log('hello 2');
+        });
+    </script>
+    <script>
+        /*setTimeout(function () {
+            throw new Error("Oops!");
+        }, 0);
+
+        setTimeout(function () {
+            console.log('hello');
+        }, 0);*/
+    </script>
+</body>
+</html>

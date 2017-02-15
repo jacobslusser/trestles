@@ -1,17 +1,63 @@
 (function () {
     'use strict';
 
-    // Our cross-browser compatible version of process.nextTick / setImmediate.
+    // Our browser version of process.nextTick().
     // https://gist.github.com/bluejava/9b9542d1da2a164d0456
     // https://github.com/knockout/knockout/blob/v3.4.1/src/tasks.js
     // https://github.com/YuzuJS/setImmediate/blob/master/setImmediate.js
+    // https://github.com/digitalbazaar/jsonld.js/blob/0.4.11/js/jsonld.js#L1439-L1458
     nappy.nextTick = (function () {
-        // TODO finish implementing better performing versions
-        if (setImmediate) {
-            return setImmediate;
-        } else {
+        if (typeof setImmediate === 'function') {
+            // IE 10-11+
+            var si = setImmediate;
             return function (callback) {
-                setTimeout(callback, 0);
+                si(callback);
+            };
+        } else if (typeof MutationObserver !== 'undefined') {
+            // Chrome 27+, Firefox 14+, Opera 15+, Safari 6.1+
+            var queue = [];
+            var processQueue = function () {
+
+                // We only want to process what is currently in the queue and not what could be added while
+                // processing, otherwise, we could starve the UI; thus, save-off the queue and reset it.
+                var currentQueue = queue; queue = [];
+
+                var fn;
+                while (fn = currentQueue.shift()) {
+                    // TODO exception handling?
+                    fn();
+                }
+            };
+
+            var div = document.createElement('div');
+            var observer = new MutationObserver(processQueue);
+            observer.observe(div, { attributes: true });
+
+            return function (callback) {
+                if (!queue.length) {
+                    div.setAttribute('a', 0); // Trigger processing on next tick
+                }
+                queue.push(callback);
+            };
+        } else if (document && 'onreadystatechange' in document.createElement('script')) {
+            // IE 6-10 (but we only support 9+)
+            return function (callback) {
+                // Create a <script> element; its readystatechange event will be fired asynchronously once it is
+                // inserted into the document -- queing the callback. Remember to clean up once it's been called.
+                var script = document.createElement('script');
+                script.onreadystatechange = function () {
+                    script.onreadystatechange = null;
+                    document.documentElement.removeChild(script);
+                    script = null;
+                    callback();
+                };
+                document.documentElement.appendChild(script);
+            };
+        } else {
+            // All other browsers (that we dont' support)
+            var st = setTimeout;
+            return function (callback) {
+                st(callback, 0);
             };
         }
     }());
@@ -37,6 +83,8 @@
         return (val && val instanceof Promise);
     }
 
+    // The 'promise resolution procedure'.
+    // https://promisesaplus.com/#point-45
     function promiseResolutionProc(promise, x) {
         if (promise === x) {
             promise.transition(STATE_REJECTED, new TypeError('A promise cannot be resolved with itself.'));
@@ -141,6 +189,9 @@
             nappy.nextTick(function () {
                 var promise, handler, value;
                 while (promise = self.queue.shift()) {
+
+                    // The 'then' method
+                    // https://promisesaplus.com/#point-21
                     if (self.state === STATE_FULFILLED) {
                         handler = promise.onFulfilled || onFulfilledFallback;
                     } else {
