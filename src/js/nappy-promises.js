@@ -67,6 +67,8 @@
     // https://github.com/bluejava/zousan/blob/master/src/zousan.js
     // https://www.promisejs.org/implementing/
     // https://github.com/then/promise/blob/master/src/core.js
+    // https://www.promisejs.org/polyfills/promise-done-7.0.4.js
+    // https://github.com/tests-always-included/fid-promise/blob/1.3.0/lib/fid-promise.js
     var STATE_PENDING = undefined;
     var STATE_FULFILLED = 1;
     var STATE_REJECTED = 2;
